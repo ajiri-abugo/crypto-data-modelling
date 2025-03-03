@@ -1,0 +1,17 @@
+services:
+
+  app:
+    build: .
+    container_name: crypto_data_modelling_app
+    network_mode:
+    env_file:
+      - .env
+    environment:
+      
+
+    volumes:
+      - ./etl:/app/etl
+      - ./tests:/app/tests
+      - ./config:/app/config
+      - ./data:/app/data
+      - ./dags:/app/dags
