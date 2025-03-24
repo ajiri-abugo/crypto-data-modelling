@@ -1,10 +1,19 @@
+#import reqiured modules
 import requests
 import pandas as pd
 import json
 import csv
+import os
+from dotenv import load_dotenv
 
-with open("credentials.txt", "r") as f:
-    api_key = f.read()
+#load environment variables from .env file
+load_dotenv()
+
+#not applicable
+'''with open("credentials.txt", "r") as f:
+    api_key = f.read()'''
+
+api_key = os.getenv('API_KEY')
 
 headers = {
     'Accepts': 'application/json',
