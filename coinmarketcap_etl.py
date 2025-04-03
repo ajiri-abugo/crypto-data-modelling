@@ -6,7 +6,7 @@ import pandas as pd
 import json
 import csv
 import os
-
+import time
 
 def get_data():
     #load environment variables from .env file
@@ -23,20 +23,24 @@ def get_data():
     url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
 
     # Making API request
-    r = requests.get(url, headers=headers)
-    data = r.json()
-    # print(data)
-    print("Data extracted successfully")
-    return data
+    try:
+        res = requests.get(url, headers=headers)
+        data = res.json()
+        # print(data)
+        print("Data extracted successfully")
+        return data
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data: {e}")
+        return None
 
-def stream_data(data):
-    conf = {"bootstrap.servers": "localhost:9092"}
-
-    producer = Producer(conf)
-
-    producer.produce(topic="crypto-data", value=json.dumps(data))
-
-    producer.flush()
-    print("Data loaded into kafkaProducer successfully")
-data = get_data()
-stream_data(data)
+def stream_data():
+    while True:
+        data = get_data()
+        conf = {"bootstrap.servers": "localhost:29092"} 
+        producer = Producer(conf)
+        if data:
+            producer.produce("crypto-data", value=json.dumps(data))
+            producer.flush()
+            print("Data loaded into kafkaProducer successfully")
+        time.sleep(30)
+stream_data()
