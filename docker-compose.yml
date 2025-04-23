@@ -49,3 +49,40 @@ services:
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+
+  jobmanager:
+    image: pyflink/playgrounds:1.13.0-rc2
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+    volumes:
+      - ./jars:/opt/flink/lib 
+
+  taskmanager:
+    image: pyflink/playgrounds:1.13.0-rc2
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+    volumes:
+      - ./jars:/opt/flink/lib  
+
+  # pyflink:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - jobmanager
+  #     - broker
+  #   volumes:
+  #     - ./jars:/opt/flink/lib
+  #     - ./app:/opt/flink/app
+  #   working_dir: /opt/flink/app
+  #   command: ["python3", "test.py"]
