@@ -9,7 +9,7 @@ import os
 import time
 
 def get_data():
-    #load environment variables from .env file
+    # Load environment variables from .env file
     load_dotenv()
 
     api_key = os.getenv("API_KEY")
