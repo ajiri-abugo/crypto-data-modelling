@@ -19,16 +19,38 @@ def get_data():
         'X-CMC_PRO_API_KEY': api_key,
     }
 
-    # API endpoint
     url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
 
-    # Making API request
     try:
         res = requests.get(url, headers=headers)
-        data = res.json()
-        # print(data)
-        print("Data extracted successfully")
-        return data
+        if res.status_code == 200:
+            raw_data = res.json()
+            filtered_data = []
+
+            for currency in raw_data['data']:
+                filtered_currency = {
+                    "id": currency["id"],
+                    "name": currency["name"],
+                    "symbol": currency["symbol"],
+                    "date_added": currency["date_added"],
+                    "price": currency["quote"]["USD"]["price"],
+                    "volume_24h": currency["quote"]["USD"]["volume_24h"],
+                    "volume_change_24h": currency["quote"]["USD"]["volume_change_24h"],
+                    "max_supply": currency["max_supply"],
+                    "circulating_supply": currency["circulating_supply"],
+                    "total_supply": currency["total_supply"],
+                    "infinite_supply": currency["infinite_supply"],
+                    "cmc_rank": currency["cmc_rank"],
+                    "last_updated": currency["last_updated"]
+                }
+                filtered_data.append(filtered_currency)
+
+            print("Filtered data extracted successfully.")
+            return filtered_data
+        else:
+            print(f"API error: {res.status_code}")
+            return None
+
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data: {e}")
         return None
@@ -39,8 +61,8 @@ def stream_data():
         conf = {"bootstrap.servers": "localhost:29092"} 
         producer = Producer(conf)
         if data:
-            producer.produce("crypto-data", value=json.dumps(data))
+            producer.produce("crypto-data", value=json.dumps(data, indent=4))
             producer.flush()
             print("Data loaded into kafkaProducer successfully")
-        time.sleep(30)
+        time.sleep(10)
 stream_data()
